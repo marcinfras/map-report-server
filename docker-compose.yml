@@ -1,0 +1,23 @@
+services:
+  map-report-api:
+    build: .
+    container_name: map-report-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - map-report-mongodb
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
+  map-report-mongodb:
+    image: mongo:6
+    container_name: map-report-mongodb
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

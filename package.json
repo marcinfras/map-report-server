@@ -1,0 +1,33 @@
+{
+  "name": "map-report-server",
+  "version": "1.0.0",
+  "main": "src/app.ts",
+  "author": "marcinfras",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --legacy-watch --exec node --loader ts-node/esm src/app.ts",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.17.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.32.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "eslint": "^9.32.0",
+    "globals": "^16.3.0",
+    "husky": "^9.1.7",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0"
+  }
+}
