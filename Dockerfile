@@ -1,12 +1,33 @@
-FROM node:24-alpine
+ARG NODE_VERSION=24-alpine
+
+FROM node:$NODE_VERSION AS deps
 WORKDIR /app
 
-COPY package.json yarn.lock .
+COPY package.json yarn.lock .yarnrc.yml .
+RUN corepack enable && corepack install
+RUN yarn install --immutable
 
-RUN yarn install --frozen-lockfile
 
+FROM node:$NODE_VERSION AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN corepack enable && corepack install
+RUN yarn build:server
+
+
+FROM node:$NODE_VERSION AS deploy
+WORKDIR /app
+
+COPY package.json yarn.lock .yarnrc.yml migrate-mongo-config.ts ./
+RUN corepack enable && corepack install
+
+RUN yarn workspaces focus --production \
+    && rm -Rf /root/.yarn /tmp/node-compile-cache
+COPY --from=builder /app/dist/ dist/
+COPY migrations/ migrations/
 
 EXPOSE 3000
-
-CMD ["yarn", "dev"]
+ENV NODE_ENV=production
+CMD ["sh", "-c", "yarn migration:up && /usr/local/bin/node dist/index.js"]

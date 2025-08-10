@@ -1,23 +1,35 @@
 services:
   map-report-api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: deps
     container_name: map-report-api
     ports:
       - "3000:3000"
     depends_on:
-      - map-report-mongodb
+      map-report-mongodb:
+        condition: service_healthy
     env_file:
       - .env
     volumes:
       - .:/app
+    command: ["yarn", "dev"]
 
   map-report-mongodb:
-    image: mongo:6
+    image: mongo:8.0.8
+    restart: always
     container_name: map-report-mongodb
     ports:
       - "27018:27017"
     volumes:
       - mongo-data:/data/db
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'map-report-mongodb:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongo-data:
