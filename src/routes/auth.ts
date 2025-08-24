@@ -86,14 +86,4 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-// router.get("/", async (req, res, next) => {
-//   try {
-//     const profiles = await Profile.find({});
-
-//     res.status(200).json(profiles);
-//   } catch (error) {
-//     next({ status: 500, message: "Internal server error" });
-//   }
-// });
-
 export default router;
