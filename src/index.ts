@@ -1,18 +1,18 @@
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-
-dotenv.config();
-
-export const PORT = process.env.SERVER_PORT || 3000;
+import mongoose from 'mongoose';
+import { OAuth2Client } from 'google-auth-library';
+import Config from './config.js';
 
 export const connectDB = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
-      throw new Error("MONGODB_URI is not defined in environment variables");
-    }
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("MongoDB connected successfully");
+    await mongoose.connect(Config.MONGODB_URI);
+    console.log('MongoDB connected successfully');
   } catch (error) {
-    console.error("MongoDB connection failed:", error);
+    console.error('MongoDB connection failed:', error);
   }
 };
+
+export const googleClient = new OAuth2Client(
+  Config.GOOGLE_CLIENT_ID,
+  Config.GOOGLE_CLIENT_SECRET,
+  `${Config.BACKEND_URL}/auth/google/callback`
+);
