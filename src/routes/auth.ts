@@ -239,8 +239,11 @@ router.post(
 
 router.get(
   '/me',
-  requireAuth,
   asyncHandler(async (req: Request, res: Response) => {
+    if (!req.session?.user?._id) {
+      return res.status(200).json({ user: null });
+    }
+
     const user = await User.findById(req.session.user?._id).populate('profile');
 
     if (!user) {
