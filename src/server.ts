@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './index.js';
-import authRouter from './routes/auth.js';
+import authRouter from './routes/auth/auth.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import Config from './config.js';
 import session from 'express-session';

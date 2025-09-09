@@ -1,59 +1,28 @@
-// import { Schema, Types, model } from "mongoose";
-// import bcrypt from "bcrypt";
-// import type { IProfile } from "./Profiles.js";
-
-// interface IUser {
-//   email: string;
-//   password: string;
-//   profile: Types.ObjectId | IProfile;
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
-
-// const userSchema = new Schema<IUser>(
-//   {
-//     email: { type: String, required: true, unique: true },
-//     password: { type: String, required: true },
-//     profile: { type: Schema.Types.ObjectId, ref: "Profile", required: true },
-//   },
-//   { timestamps: true }
-// );
-
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-
-//   try {
-//     this.password = await bcrypt.hash(this.password, 10);
-//     next();
-//   } catch (error) {
-//     return next(error as Error);
-//   }
-// });
-
-// export const User = model<IUser>("User", userSchema);
-
-///////////////////////////////////////////////////////////////////
-
 import { Schema, Types, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import type { IProfile } from './Profiles.js';
+
+export enum UserType {
+  STANDARD = 'standard',
+  THIRD_PARTY = 'thirdParty',
+}
 
 interface IBaseUser {
   email: string;
   profile: Types.ObjectId | IProfile;
   createdAt: Date;
   updatedAt: Date;
-  userType: 'standard' | 'thirdParty';
+  userType: UserType;
 }
 
 interface IStandardUser extends IBaseUser {
   password: string;
-  userType: 'standard';
+  userType: UserType.STANDARD;
 }
 
 interface IThirdPartyUser extends IBaseUser {
   provider: string;
-  userType: 'thirdParty';
+  userType: UserType.THIRD_PARTY;
 }
 
 const baseUserSchema = new Schema<IBaseUser>(
@@ -63,7 +32,7 @@ const baseUserSchema = new Schema<IBaseUser>(
     userType: {
       type: String,
       required: true,
-      enum: ['standard', 'thirdParty'],
+      enum: Object.values(UserType),
     },
   },
   { timestamps: true, discriminatorKey: 'userType' }
@@ -91,41 +60,11 @@ const thirdPartyUserSchema = new Schema<IThirdPartyUser>({
 });
 
 export const StandardUser = User.discriminator<IStandardUser>(
-  'standard',
+  UserType.STANDARD,
   standardUserSchema
 );
 
 export const ThirdPartyUser = User.discriminator<IThirdPartyUser>(
-  'thirdParty',
+  UserType.THIRD_PARTY,
   thirdPartyUserSchema
 );
-
-// interface IUser {
-//   email: string;
-//   password: string;
-//   profile: Types.ObjectId | IProfile;
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
-
-// const userSchema = new Schema<IUser>(
-//   {
-//     email: { type: String, required: true, unique: true },
-//     password: { type: String, required: true },
-//     profile: { type: Schema.Types.ObjectId, ref: "Profile", required: true },
-//   },
-//   { timestamps: true }
-// );
-
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-
-//   try {
-//     this.password = await bcrypt.hash(this.password, 10);
-//     next();
-//   } catch (error) {
-//     return next(error as Error);
-//   }
-// });
-
-// export const User = model<IUser>("User", userSchema);
