@@ -14,6 +14,7 @@ services:
       - .env
     volumes:
       - .:/app
+      - /app/node_modules
     command: ["yarn", "dev"]
 
   map-report-mongodb:
@@ -24,8 +25,9 @@ services:
       - "27018:27017"
     volumes:
       - mongo-data:/data/db
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}) }" | mongosh --port 27017 --quiet
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'map-report-mongodb:27017'}]}) }" | mongosh --port 27017 --quiet
       interval: 5s
       timeout: 5s
       retries: 5

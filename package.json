@@ -1,24 +1,38 @@
 {
   "name": "map-report-server",
   "version": "1.0.0",
-  "main": "src/app.ts",
+  "main": "src/server.ts",
   "author": "marcinfras",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --legacy-watch --exec node --loader ts-node/esm src/server.ts",
-    "prepare": "husky"
+    "dev": "nodemon --legacy-watch --watch src --exec tsx src/server.ts",
+    "prepare": "husky",
+    "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",
+    "lint:commits": "commitlint --last --verbose",
+    "pretty": "prettier './**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'",
+    "pretty:fix": "yarn pretty --write"
   },
   "dependencies": {
+    "@types/yup": "^0.32.0",
+    "bcrypt": "^6.0.0",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mongoose": "^8.17.0"
+    "express-session": "^1.18.2",
+    "google-auth-library": "^10.3.0",
+    "mongoose": "^8.17.0",
+    "yup": "^1.7.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.32.0",
+    "@types/bcrypt": "^6",
+    "@types/cors": "^2",
     "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2",
     "@types/node": "^24.2.0",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
@@ -27,12 +41,17 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": "eslint --cache --fix"
+    "*.{ts,tsx,js,jsx}": [
+      "prettier --write",
+      "eslint --cache --fix"
+    ]
   },
   "packageManager": "yarn@4.9.2"
 }
