@@ -2,12 +2,22 @@ import express from 'express';
 import cors from 'cors';
 import { connectDB } from './index.js';
 import authRouter from './routes/auth/auth.routes.js';
+import pinsRouter from './routes/pins/pins.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import Config from './config.js';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import path from 'path';
+import fs from 'fs';
 
 const app = express();
+
+const uploadsDir = path.join(process.cwd(), 'uploads/pins');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use(express.json());
 connectDB();
@@ -32,6 +42,7 @@ app.use(
 );
 
 app.use('/auth', authRouter);
+app.use('/pins', pinsRouter);
 
 app.use(errorHandler);
 
