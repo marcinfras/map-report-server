@@ -10,6 +10,10 @@ export interface AppConfig {
   BACKEND_URL: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  AWS_ACCESS_KEY_ID: string;
+  AWS_SECRET_ACCESS_KEY: string;
+  AWS_REGION: string;
+  AWS_BUCKET_NAME: string;
 }
 
 const Config: AppConfig = {
@@ -38,6 +42,32 @@ const Config: AppConfig = {
     (() => {
       throw new Error(
         'GOOGLE_CLIENT_SECRET is not defined in environment variables'
+      );
+    })(),
+  AWS_ACCESS_KEY_ID:
+    process.env.AWS_ACCESS_KEY_ID ??
+    (() => {
+      throw new Error(
+        'AWS_ACCESS_KEY_ID is not defined in environment variables'
+      );
+    })(),
+  AWS_SECRET_ACCESS_KEY:
+    process.env.AWS_SECRET_ACCESS_KEY ??
+    (() => {
+      throw new Error(
+        'AWS_SECRET_ACCESS_KEY is not defined in environment variables'
+      );
+    })(),
+  AWS_REGION:
+    process.env.AWS_REGION ??
+    (() => {
+      throw new Error('AWS_REGION is not defined in environment variables');
+    })(),
+  AWS_BUCKET_NAME:
+    process.env.AWS_BUCKET_NAME ??
+    (() => {
+      throw new Error(
+        'AWS_AWS_BUCKET_NAME is not defined in environment variables'
       );
     })(),
 };

@@ -13,6 +13,7 @@ import { googleClient } from '../../index.js';
 import Config from '../../config.js';
 import { OAuthError } from '../../types/oauth.js';
 import { ERRORS } from '../../types/errors.js';
+import { SUCCESS } from '../../types/success.js';
 
 export const register = async (req: Request, res: Response) => {
   const result = await withTransactions(async session => {
@@ -56,7 +57,7 @@ export const register = async (req: Request, res: Response) => {
 
   res
     .status(201)
-    .json({ message: 'User registered successfully', user: result });
+    .json({ message: SUCCESS.AUTH.REGISTER_SUCCESS, user: result });
 };
 
 export const login = async (req: Request, res: Response) => {
@@ -85,7 +86,9 @@ export const login = async (req: Request, res: Response) => {
     },
   };
 
-  res.status(200).json({ message: 'Login successful', user: req.session.user });
+  res
+    .status(200)
+    .json({ message: SUCCESS.AUTH.LOGIN_SUCCESS, user: req.session.user });
 };
 
 export const googleRedirect = (req: Request, res: Response) => {

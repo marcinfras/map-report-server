@@ -4,8 +4,13 @@ import { ApiError } from '../../helpers/ApiError.js';
 import { ERRORS } from '../../types/errors.js';
 import { Pin, PinType } from '../../models/Pins.js';
 import { User } from '../../models/Users.js';
+import { v4 as uuidv4 } from 'uuid';
+import { deleteFromS3, getFromS3, uploadToS3 } from '../../helpers/aws.js';
+import { SUCCESS } from '../../types/success.js';
 
 export const createPin = async (req: Request, res: Response) => {
+  let s3key: string | null = null;
+
   const result = await withTransactions(async session => {
     const { title, description, type, lat, lng } = req.body;
 
@@ -20,7 +25,19 @@ export const createPin = async (req: Request, res: Response) => {
       throw new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND);
     }
 
-    const authorProfileId = user.profile.toString();
+    const authorProfileId = user.profile;
+
+    if (req.file) {
+      s3key = `pins/${uuidv4()}`;
+      try {
+        await uploadToS3(req.file.buffer, s3key, req.file.mimetype);
+      } catch (error) {
+        throw new ApiError(
+          'INTERNAL_SERVER_ERROR',
+          ERRORS.PINS.FAILED_IMAGE_UPLOAD
+        );
+      }
+    }
 
     const pinData = {
       title,
@@ -28,7 +45,7 @@ export const createPin = async (req: Request, res: Response) => {
       type,
       coordinates: { lat, lng },
       author: authorProfileId,
-      ...(req.file && { image: `/uploads/pins/${req.file.filename}` }),
+      ...(s3key && { image: s3key }),
     };
 
     const pin = await Pin.create([pinData], { session });
@@ -43,9 +60,14 @@ export const createPin = async (req: Request, res: Response) => {
     await pin[0].populate('author', 'fullName');
 
     return pin[0];
+  }).catch(async error => {
+    if (s3key) {
+      await deleteFromS3(s3key);
+    }
+    throw error;
   });
 
-  res.status(201).json({ message: 'Pin created successfully', pin: result });
+  res.status(201).json({ message: SUCCESS.PINS.PIN_CREATED, pin: result });
 };
 
 export const getPins = async (req: Request, res: Response) => {
@@ -72,8 +94,20 @@ export const getPinById = async (req: Request, res: Response) => {
   if (!pin) {
     throw new ApiError('NOT_FOUND', ERRORS.PINS.NOT_FOUND);
   }
+  let imageBase64: string | null = null;
+  if (pin.image) {
+    const s3Key = pin.image;
+    const s3Object = await getFromS3(s3Key);
 
-  res.json(pin);
+    const chunks: Buffer[] = [];
+    for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+    imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+  }
+
+  res.json({ ...pin.toObject(), image: imageBase64 });
 };
 
 export const getPinCounts = async (req: Request, res: Response) => {

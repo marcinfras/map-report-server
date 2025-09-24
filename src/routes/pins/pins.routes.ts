@@ -10,6 +10,7 @@ import {
   getPinCounts,
   getPins,
 } from './pins.controller.js';
+import { convertIdMiddleware } from '../../middleware/convertId.js';
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.post(
   validate(createPinSchema),
   asyncHandler(createPin)
 );
-router.get('/', asyncHandler(getPins));
+router.get('/', convertIdMiddleware(), asyncHandler(getPins));
 router.get('/stats', asyncHandler(getPinCounts));
 router.get('/:id', asyncHandler(getPinById));
 

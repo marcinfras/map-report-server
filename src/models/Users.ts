@@ -8,6 +8,7 @@ export enum UserType {
 }
 
 interface IBaseUser {
+  _id: Types.ObjectId;
   email: string;
   profile: Types.ObjectId | IProfile;
   createdAt: Date;
