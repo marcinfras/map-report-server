@@ -2,3 +2,4 @@ node_modules
 .env
 .eslintcache
 .yarn/install-state.gz
+uploads
