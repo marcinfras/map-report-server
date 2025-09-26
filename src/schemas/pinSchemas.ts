@@ -27,3 +27,20 @@ export const createPinSchema = yup.object({
     .min(-180, 'Invalid longitude')
     .max(180, 'Invalid longitude'),
 });
+
+export const updatePinSchema = yup.object({
+  title: yup
+    .string()
+    .trim()
+    .max(100, 'Title must be less than 100 characters')
+    .notRequired(),
+  description: yup
+    .string()
+    .trim()
+    .max(500, 'Description must be less than 500 characters')
+    .notRequired(),
+  type: yup
+    .string()
+    .oneOf(Object.values(PinType), 'Invalid pin type')
+    .notRequired(),
+});

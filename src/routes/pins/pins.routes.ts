@@ -2,13 +2,14 @@ import express from 'express';
 import { requireAuth } from '../../middleware/auth.js';
 import { handleUploadError, upload } from '../../middleware/upload.js';
 import { validate } from '../../middleware/validate.js';
-import { createPinSchema } from '../../schemas/pinSchemas.js';
+import { createPinSchema, updatePinSchema } from '../../schemas/pinSchemas.js';
 import { asyncHandler } from '../../helpers/asyncHandler.js';
 import {
   createPin,
   getPinById,
   getPinCounts,
   getPins,
+  updatePin,
 } from './pins.controller.js';
 import { convertIdMiddleware } from '../../middleware/convertId.js';
 
@@ -24,6 +25,14 @@ router.post(
 );
 router.get('/', convertIdMiddleware(), asyncHandler(getPins));
 router.get('/stats', asyncHandler(getPinCounts));
-router.get('/:id', asyncHandler(getPinById));
+router.get('/:id', convertIdMiddleware(), asyncHandler(getPinById));
+router.put(
+  '/:id',
+  requireAuth,
+  upload.single('image'),
+  handleUploadError,
+  validate(updatePinSchema),
+  asyncHandler(updatePin)
+);
 
 export default router;

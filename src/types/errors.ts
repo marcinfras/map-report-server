@@ -7,6 +7,7 @@ export interface ErrorMessages {
     LOGOUT_FAILED: string;
     NOT_FOUND: string;
     NOT_AUTHENTICATED: string;
+    FORBIDDEN: string;
   };
   PINS: {
     FAILED_PIN_CREATION: string;
@@ -34,6 +35,7 @@ export const ERRORS: ErrorMessages = {
     LOGOUT_FAILED: 'Failed to logout',
     NOT_FOUND: 'User not found',
     NOT_AUTHENTICATED: 'User not authenticated',
+    FORBIDDEN: 'You do not have permission to perform this action',
   },
   PINS: {
     FAILED_PIN_CREATION: 'Failed to create pin',
