@@ -6,6 +6,7 @@ import { createPinSchema, updatePinSchema } from '../../schemas/pinSchemas.js';
 import { asyncHandler } from '../../helpers/asyncHandler.js';
 import {
   createPin,
+  deletePin,
   getPinById,
   getPinCounts,
   getPins,
@@ -34,5 +35,6 @@ router.put(
   validate(updatePinSchema),
   asyncHandler(updatePin)
 );
+router.delete('/:id', requireAuth, asyncHandler(deletePin));
 
 export default router;

@@ -6,6 +6,7 @@ export interface SuccessMessages {
   PINS: {
     PIN_CREATED: string;
     PIN_UPDATED: string;
+    PIN_DELETED: string;
   };
 }
 
@@ -17,5 +18,6 @@ export const SUCCESS: SuccessMessages = {
   PINS: {
     PIN_CREATED: 'Pin created successfully',
     PIN_UPDATED: 'Pin updated successfully',
+    PIN_DELETED: 'Pin deleted successfully',
   },
 };

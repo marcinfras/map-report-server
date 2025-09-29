@@ -14,6 +14,7 @@ export interface ErrorMessages {
     INVALID_PIN_TYPE: string;
     NOT_FOUND: string;
     FAILED_IMAGE_UPLOAD: string;
+    FAILED_PIN_DELETE: string;
   };
   GENERAL: {
     INTERNAL_ERROR: string;
@@ -42,6 +43,7 @@ export const ERRORS: ErrorMessages = {
     INVALID_PIN_TYPE: 'Invalid pin type',
     NOT_FOUND: 'Pin not found',
     FAILED_IMAGE_UPLOAD: 'Failed to upload image',
+    FAILED_PIN_DELETE: 'Failed to delete pin',
   },
   GENERAL: {
     INTERNAL_ERROR: 'Internal server error',

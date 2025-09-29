@@ -6,7 +6,7 @@ export enum PinType {
   Idea = 'idea',
 }
 
-enum PinStatus {
+export enum PinStatus {
   Active = 'active',
   Resolved = 'resolved',
 }
