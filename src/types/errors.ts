@@ -7,12 +7,14 @@ export interface ErrorMessages {
     LOGOUT_FAILED: string;
     NOT_FOUND: string;
     NOT_AUTHENTICATED: string;
+    FORBIDDEN: string;
   };
   PINS: {
     FAILED_PIN_CREATION: string;
     INVALID_PIN_TYPE: string;
     NOT_FOUND: string;
     FAILED_IMAGE_UPLOAD: string;
+    FAILED_PIN_DELETE: string;
   };
   GENERAL: {
     INTERNAL_ERROR: string;
@@ -34,12 +36,14 @@ export const ERRORS: ErrorMessages = {
     LOGOUT_FAILED: 'Failed to logout',
     NOT_FOUND: 'User not found',
     NOT_AUTHENTICATED: 'User not authenticated',
+    FORBIDDEN: 'You do not have permission to perform this action',
   },
   PINS: {
     FAILED_PIN_CREATION: 'Failed to create pin',
     INVALID_PIN_TYPE: 'Invalid pin type',
     NOT_FOUND: 'Pin not found',
     FAILED_IMAGE_UPLOAD: 'Failed to upload image',
+    FAILED_PIN_DELETE: 'Failed to delete pin',
   },
   GENERAL: {
     INTERNAL_ERROR: 'Internal server error',

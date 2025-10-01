@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { withTransactions } from '../../helpers/withTransactions.js';
 import { ApiError } from '../../helpers/ApiError.js';
 import { ERRORS } from '../../types/errors.js';
-import { Pin, PinType } from '../../models/Pins.js';
+import { Pin, PinStatus, PinType } from '../../models/Pins.js';
 import { User } from '../../models/Users.js';
 import { v4 as uuidv4 } from 'uuid';
 import { deleteFromS3, getFromS3, uploadToS3 } from '../../helpers/aws.js';
@@ -135,4 +135,108 @@ export const getPinCounts = async (req: Request, res: Response) => {
   );
 
   res.json(result);
+};
+
+export const updatePin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { title, description, type, status } = req.body;
+
+  if (!id) throw new ApiError('BAD_REQUEST', ERRORS.PINS.NOT_FOUND);
+
+  const result = await withTransactions(async session => {
+    const pin = await Pin.findById(id).session(session);
+    if (!pin) throw new ApiError('NOT_FOUND', ERRORS.PINS.NOT_FOUND);
+
+    const userId = req.session.user?._id;
+
+    if (!userId) {
+      throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
+    }
+
+    const user = await User.findById(userId).session(session).select('profile');
+
+    if (!user) {
+      throw new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND);
+    }
+
+    const authorProfileId = user.profile;
+
+    if (authorProfileId.toString() !== pin.author.toString()) {
+      throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
+    }
+
+    if (title) pin.title = title;
+    if (description) pin.description = description;
+    if (type) pin.type = type;
+    if (status) pin.status = status;
+
+    if (req.file) {
+      const oldS3Key = pin.image;
+      const newS3Key = `pins/${uuidv4()}`;
+      try {
+        await uploadToS3(req.file.buffer, newS3Key, req.file.mimetype);
+        pin.image = newS3Key;
+        if (oldS3Key) {
+          await deleteFromS3(oldS3Key);
+        }
+      } catch (error) {
+        throw new ApiError(
+          'INTERNAL_SERVER_ERROR',
+          ERRORS.PINS.FAILED_IMAGE_UPLOAD
+        );
+      }
+    }
+
+    await pin.save({ session });
+    await pin.populate('author', 'fullName');
+    return pin;
+  });
+
+  res.json({ message: SUCCESS.PINS.PIN_UPDATED, pin: result });
+};
+
+export const deletePin = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (!id) throw new ApiError('BAD_REQUEST', ERRORS.PINS.NOT_FOUND);
+
+  const result = await withTransactions(async session => {
+    const pin = await Pin.findById(id).session(session);
+    if (!pin) throw new ApiError('NOT_FOUND', ERRORS.PINS.NOT_FOUND);
+
+    const userId = req.session.user?._id;
+
+    if (!userId) {
+      throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
+    }
+
+    const user = await User.findById(userId).session(session).select('profile');
+
+    if (!user) {
+      throw new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND);
+    }
+
+    const authorProfileId = user.profile;
+
+    if (authorProfileId.toString() !== pin.author.toString()) {
+      throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
+    }
+
+    await pin.deleteOne();
+
+    if (pin.image) {
+      try {
+        await deleteFromS3(pin.image);
+      } catch (error) {
+        throw new ApiError(
+          'INTERNAL_SERVER_ERROR',
+          ERRORS.PINS.FAILED_PIN_DELETE
+        );
+      }
+    }
+
+    return pin;
+  });
+
+  res.json({ message: SUCCESS.PINS.PIN_DELETED, pin: result });
 };
