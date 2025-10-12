@@ -43,6 +43,5 @@ export const handleUploadError = (
   if (error && error.message === 'Only image files are allowed!') {
     return next(new ApiError('BAD_REQUEST', ERRORS.MULTER.INVALID_FILE_TYPE));
   }
-
   next(error);
 };

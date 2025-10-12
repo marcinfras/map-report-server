@@ -8,6 +8,8 @@ export interface ErrorMessages {
     NOT_FOUND: string;
     NOT_AUTHENTICATED: string;
     FORBIDDEN: string;
+    INVALID_USER_TYPE: string;
+    CHANGE_PASSWORD_INVALID_OLD_PASSWORD: string;
   };
   PINS: {
     FAILED_PIN_CREATION: string;
@@ -16,6 +18,11 @@ export interface ErrorMessages {
     NOT_FOUND: string;
     FAILED_IMAGE_UPLOAD: string;
     FAILED_PIN_DELETE: string;
+  };
+  PROFILE: {
+    NOTHING_TO_UPDATE: string;
+    NOT_FOUND: string;
+    FAILED_AVATAR_UPLOAD: string;
   };
   GENERAL: {
     INTERNAL_ERROR: string;
@@ -38,6 +45,8 @@ export const ERRORS: ErrorMessages = {
     NOT_FOUND: 'User not found',
     NOT_AUTHENTICATED: 'User not authenticated',
     FORBIDDEN: 'You do not have permission to perform this action',
+    INVALID_USER_TYPE: 'Invalid user type',
+    CHANGE_PASSWORD_INVALID_OLD_PASSWORD: 'Old password is incorrect',
   },
   PINS: {
     FAILED_PIN_CREATION: 'Failed to create pin',
@@ -46,6 +55,11 @@ export const ERRORS: ErrorMessages = {
     NOT_FOUND: 'Pin not found',
     FAILED_IMAGE_UPLOAD: 'Failed to upload image',
     FAILED_PIN_DELETE: 'Failed to delete pin',
+  },
+  PROFILE: {
+    NOTHING_TO_UPDATE: 'No data provided to update',
+    NOT_FOUND: 'Profile not found',
+    FAILED_AVATAR_UPLOAD: 'Failed to upload avatar',
   },
   GENERAL: {
     INTERNAL_ERROR: 'Internal server error',

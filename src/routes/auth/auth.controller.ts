@@ -14,6 +14,7 @@ import Config from '../../config.js';
 import { OAuthError } from '../../types/oauth.js';
 import { ERRORS } from '../../types/errors.js';
 import { SUCCESS } from '../../types/success.js';
+import { getFromS3 } from '../../helpers/aws.js';
 
 export const register = async (req: Request, res: Response) => {
   const result = await withTransactions(async session => {
@@ -235,11 +236,64 @@ export const me = async (req: Request, res: Response) => {
     throw new ApiError('NOT_FOUND', ERRORS.AUTH.NOT_FOUND);
   }
 
+  let imageBase64: string | null = null;
+  const profile = user.profile as IProfile;
+  if (profile.avatar && !profile.avatar.startsWith('http')) {
+    const s3Key = profile.avatar;
+    const s3Object = await getFromS3(s3Key);
+
+    const chunks: Buffer[] = [];
+    for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+    imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+  }
+
   res.status(200).json({
     user: {
       _id: user._id.toString(),
       email: user.email,
-      profile: user.profile,
+      userType: user.userType,
+      profile: {
+        _id: profile._id.toString(),
+        fullName: profile.fullName,
+        role: profile.role,
+        ...(imageBase64 ? { avatar: imageBase64 } : {}),
+      },
     },
   });
+};
+
+export const changePassword = async (req: Request, res: Response) => {
+  const userId = req.session.user?._id;
+
+  if (!userId) {
+    throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
+  }
+
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await StandardUser.findById(userId).orFail(
+    new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND)
+  );
+
+  if (user.userType !== UserType.STANDARD) {
+    throw new ApiError('BAD_REQUEST', ERRORS.AUTH.INVALID_USER_TYPE);
+  }
+
+  const isVaild = await bcrypt.compare(currentPassword, user.password);
+
+  if (!isVaild) {
+    throw new ApiError(
+      'UNAUTHORIZED',
+      ERRORS.AUTH.CHANGE_PASSWORD_INVALID_OLD_PASSWORD
+    );
+  }
+
+  user.password = newPassword;
+
+  await user.save();
+
+  res.status(200).json({ message: SUCCESS.AUTH.PASSWORD_CHANGED });
 };
