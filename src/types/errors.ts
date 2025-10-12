@@ -12,6 +12,7 @@ export interface ErrorMessages {
   PINS: {
     FAILED_PIN_CREATION: string;
     INVALID_PIN_TYPE: string;
+    INVALID_PIN_STATUS: string;
     NOT_FOUND: string;
     FAILED_IMAGE_UPLOAD: string;
     FAILED_PIN_DELETE: string;
@@ -41,6 +42,7 @@ export const ERRORS: ErrorMessages = {
   PINS: {
     FAILED_PIN_CREATION: 'Failed to create pin',
     INVALID_PIN_TYPE: 'Invalid pin type',
+    INVALID_PIN_STATUS: 'Invalid pin status',
     NOT_FOUND: 'Pin not found',
     FAILED_IMAGE_UPLOAD: 'Failed to upload image',
     FAILED_PIN_DELETE: 'Failed to delete pin',

@@ -7,6 +7,7 @@ import { asyncHandler } from '../../helpers/asyncHandler.js';
 import {
   createPin,
   deletePin,
+  getMyPins,
   getPinById,
   getPinCounts,
   getPins,
@@ -26,6 +27,7 @@ router.post(
 );
 router.get('/', convertIdMiddleware(), asyncHandler(getPins));
 router.get('/stats', asyncHandler(getPinCounts));
+router.get('/my', requireAuth, convertIdMiddleware(), asyncHandler(getMyPins));
 router.get('/:id', convertIdMiddleware(), asyncHandler(getPinById));
 router.put(
   '/:id',

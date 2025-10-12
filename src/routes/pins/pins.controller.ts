@@ -7,6 +7,8 @@ import { User } from '../../models/Users.js';
 import { v4 as uuidv4 } from 'uuid';
 import { deleteFromS3, getFromS3, uploadToS3 } from '../../helpers/aws.js';
 import { SUCCESS } from '../../types/success.js';
+import { auth } from 'google-auth-library';
+import type { SortOrder } from 'mongoose';
 
 export const createPin = async (req: Request, res: Response) => {
   let s3key: string | null = null;
@@ -108,6 +110,61 @@ export const getPinById = async (req: Request, res: Response) => {
   }
 
   res.json({ ...pin.toObject(), image: imageBase64 });
+};
+
+export const getMyPins = async (req: Request, res: Response) => {
+  const { type, status, sort } = req.query;
+
+  if (type && !Object.values(PinType).includes(type as PinType)) {
+    throw new ApiError('BAD_REQUEST', ERRORS.PINS.INVALID_PIN_TYPE);
+  }
+
+  if (status && !Object.values(PinStatus).includes(status as PinStatus)) {
+    throw new ApiError('BAD_REQUEST', ERRORS.PINS.INVALID_PIN_STATUS);
+  }
+
+  const userId = req.session.user?._id;
+
+  if (!userId) {
+    throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
+  }
+
+  const user = await User.findById(userId).select('profile');
+
+  if (!user) {
+    throw new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND);
+  }
+
+  const authorProfileId = user.profile;
+
+  const query = {
+    author: authorProfileId,
+    ...(type ? { type } : {}),
+    ...(status ? { status } : {}),
+  };
+
+  const sortOption: Record<string, SortOrder> =
+    sort === 'asc' ? { createdAt: 'asc' } : { createdAt: 'desc' };
+
+  const pins = await Pin.find(query).sort(sortOption);
+
+  const pinsWithImages = await Promise.all(
+    pins.map(async pin => {
+      let imageBase64: string | null = null;
+      if (pin.image) {
+        const s3Object = await getFromS3(pin.image);
+        const chunks: Buffer[] = [];
+        for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
+          chunks.push(chunk);
+        }
+        const buffer = Buffer.concat(chunks);
+        imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+      }
+      return { ...pin.toObject(), image: imageBase64 };
+    })
+  );
+
+  res.json(pinsWithImages);
 };
 
 export const getPinCounts = async (req: Request, res: Response) => {
