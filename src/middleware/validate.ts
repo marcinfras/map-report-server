@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import * as yup from 'yup';
-import { ApiError } from '../helpers/ApiError.js';
+import { ApiError } from '@helpers/ApiError.js';
 
 export const validate =
   (schema: yup.Schema) =>

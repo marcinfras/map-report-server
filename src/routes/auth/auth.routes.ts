@@ -1,12 +1,12 @@
 import express from 'express';
-import { asyncHandler } from '../../helpers/asyncHandler.js';
-import { validate } from '../../middleware/validate.js';
+import { asyncHandler } from '@helpers/asyncHandler.js';
+import { validate } from '@middleware/validate.js';
 import {
   changePasswordSchema,
   loginSchema,
   registerSchema,
-} from '../../schemas/authSchemas.js';
-import { requireAuth } from '../../middleware/auth.js';
+} from '@schemas/authSchemas.js';
+import { requireAuth } from '@middleware/auth.js';
 import {
   changePassword,
   googleCallback,

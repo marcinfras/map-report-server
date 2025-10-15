@@ -1,20 +1,15 @@
 import { type Request, type Response } from 'express';
 import bcrypt from 'bcrypt';
-import {
-  StandardUser,
-  ThirdPartyUser,
-  User,
-  UserType,
-} from '../../models/Users.js';
-import { Profile, type IProfile } from '../../models/Profiles.js';
-import { ApiError } from '../../helpers/ApiError.js';
-import { withTransactions } from '../../helpers/withTransactions.js';
-import { googleClient } from '../../index.js';
-import Config from '../../config.js';
-import { OAuthError } from '../../types/oauth.js';
-import { ERRORS } from '../../types/errors.js';
-import { SUCCESS } from '../../types/success.js';
-import { getFromS3 } from '../../helpers/aws.js';
+import { StandardUser, ThirdPartyUser, User, UserType } from '@models/Users.js';
+import { Profile, type IProfile } from '@models/Profiles.js';
+import { ApiError } from '@helpers/ApiError.js';
+import { withTransactions } from '@helpers/withTransactions.js';
+import { googleClient } from '@/index.js';
+import Config from '@/config.js';
+import { OAuthError } from '@/types/oauth.js';
+import { ERRORS } from '@/types/errors.js';
+import { SUCCESS } from '@/types/success.js';
+import { getFromS3 } from '@helpers/aws.js';
 
 export const register = async (req: Request, res: Response) => {
   const result = await withTransactions(async session => {
@@ -252,11 +247,11 @@ export const me = async (req: Request, res: Response) => {
 
   res.status(200).json({
     user: {
-      _id: user._id.toString(),
+      id: user._id.toString(),
       email: user.email,
       userType: user.userType,
       profile: {
-        _id: profile._id.toString(),
+        id: profile._id.toString(),
         fullName: profile.fullName,
         role: profile.role,
         ...(imageBase64 ? { avatar: imageBase64 } : {}),
@@ -266,11 +261,7 @@ export const me = async (req: Request, res: Response) => {
 };
 
 export const changePassword = async (req: Request, res: Response) => {
-  const userId = req.session.user?._id;
-
-  if (!userId) {
-    throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
-  }
+  const userId = req.session.user!._id;
 
   const { currentPassword, newPassword } = req.body;
 

@@ -1,5 +1,5 @@
 import 'express-session';
-import type { UserRole } from '../models/Profiles.js';
+import { UserRole } from '@models/Profiles.js';
 
 declare module 'express-session' {
   interface SessionData {

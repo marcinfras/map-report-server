@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import multer, { MulterError } from 'multer';
-import { ApiError } from '../helpers/ApiError.js';
-import { ERRORS } from '../types/errors.js';
+import { ApiError } from '@helpers/ApiError.js';
+import { ERRORS } from '@/types/errors.js';
 
 const fileFilter = (
   req: Request,
