@@ -1,5 +1,6 @@
 import * as yup from 'yup';
-import { PinStatus, PinType } from '../models/Pins.js';
+import { ERRORS } from '@/types/errors.js';
+import { PinStatus, PinType } from '@models/Pins.js';
 
 export const createPinSchema = yup.object({
   title: yup
@@ -44,4 +45,16 @@ export const updatePinSchema = yup.object({
     .oneOf(Object.values(PinType), 'Invalid pin type')
     .notRequired(),
   status: yup.string().oneOf(Object.values(PinStatus)).notRequired(),
+});
+
+export const pinFiltersSchema = yup.object({
+  type: yup
+    .string()
+    .oneOf(Object.values(PinType), ERRORS.PINS.INVALID_PIN_TYPE)
+    .optional(),
+
+  status: yup
+    .string()
+    .oneOf(Object.values(PinStatus), ERRORS.PINS.INVALID_PIN_STATUS)
+    .optional(),
 });

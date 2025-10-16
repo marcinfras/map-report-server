@@ -1,13 +1,12 @@
 import type { Request, Response } from 'express';
-import { withTransactions } from '../../helpers/withTransactions.js';
-import { ApiError } from '../../helpers/ApiError.js';
-import { ERRORS } from '../../types/errors.js';
-import { Pin, PinStatus, PinType } from '../../models/Pins.js';
-import { User } from '../../models/Users.js';
+import { withTransactions } from '@helpers/withTransactions.js';
+import { ApiError } from '@helpers/ApiError.js';
+import { ERRORS } from '@/types/errors.js';
+import { Pin, PinType } from '@models/Pins.js';
+import { User } from '@models/Users.js';
 import { v4 as uuidv4 } from 'uuid';
-import { deleteFromS3, getFromS3, uploadToS3 } from '../../helpers/aws.js';
-import { SUCCESS } from '../../types/success.js';
-import { auth } from 'google-auth-library';
+import { deleteFromS3, getFromS3, uploadToS3 } from '@helpers/aws.js';
+import { SUCCESS } from '@/types/success.js';
 import type { SortOrder } from 'mongoose';
 
 export const createPin = async (req: Request, res: Response) => {
@@ -17,9 +16,6 @@ export const createPin = async (req: Request, res: Response) => {
     const { title, description, type, lat, lng } = req.body;
 
     const userId = req.session.user?._id;
-    if (!userId) {
-      throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
-    }
 
     const user = await User.findById(userId).session(session).select('profile');
 
@@ -115,30 +111,8 @@ export const getPinById = async (req: Request, res: Response) => {
 export const getMyPins = async (req: Request, res: Response) => {
   const { type, status, sort } = req.query;
 
-  if (type && !Object.values(PinType).includes(type as PinType)) {
-    throw new ApiError('BAD_REQUEST', ERRORS.PINS.INVALID_PIN_TYPE);
-  }
-
-  if (status && !Object.values(PinStatus).includes(status as PinStatus)) {
-    throw new ApiError('BAD_REQUEST', ERRORS.PINS.INVALID_PIN_STATUS);
-  }
-
-  const userId = req.session.user?._id;
-
-  if (!userId) {
-    throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
-  }
-
-  const user = await User.findById(userId).select('profile');
-
-  if (!user) {
-    throw new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND);
-  }
-
-  const authorProfileId = user.profile;
-
   const query = {
-    author: authorProfileId,
+    author: req.session.user!.profile._id,
     ...(type ? { type } : {}),
     ...(status ? { status } : {}),
   };
@@ -204,19 +178,7 @@ export const updatePin = async (req: Request, res: Response) => {
     const pin = await Pin.findById(id).session(session);
     if (!pin) throw new ApiError('NOT_FOUND', ERRORS.PINS.NOT_FOUND);
 
-    const userId = req.session.user?._id;
-
-    if (!userId) {
-      throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
-    }
-
-    const user = await User.findById(userId).session(session).select('profile');
-
-    if (!user) {
-      throw new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND);
-    }
-
-    const authorProfileId = user.profile;
+    const authorProfileId = req.session.user!.profile._id;
 
     if (authorProfileId.toString() !== pin.author.toString()) {
       throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
@@ -261,19 +223,7 @@ export const deletePin = async (req: Request, res: Response) => {
     const pin = await Pin.findById(id).session(session);
     if (!pin) throw new ApiError('NOT_FOUND', ERRORS.PINS.NOT_FOUND);
 
-    const userId = req.session.user?._id;
-
-    if (!userId) {
-      throw new ApiError('UNAUTHORIZED', ERRORS.AUTH.NOT_AUTHENTICATED);
-    }
-
-    const user = await User.findById(userId).session(session).select('profile');
-
-    if (!user) {
-      throw new ApiError('BAD_REQUEST', ERRORS.AUTH.NOT_FOUND);
-    }
-
-    const authorProfileId = user.profile;
+    const authorProfileId = req.session.user!.profile._id;
 
     if (authorProfileId.toString() !== pin.author.toString()) {
       throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);

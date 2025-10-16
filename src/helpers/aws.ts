@@ -3,8 +3,8 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
-import { s3Client } from '../index.js';
-import Config from '../config.js';
+import { s3Client } from '@/index.js';
+import Config from '@/config.js';
 
 export const uploadToS3 = async (
   buffer: Buffer,

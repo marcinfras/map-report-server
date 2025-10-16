@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import multer, { MulterError } from 'multer';
-import { ApiError } from '../helpers/ApiError.js';
-import { ERRORS } from '../types/errors.js';
+import { ApiError } from '@helpers/ApiError.js';
+import { ERRORS } from '@/types/errors.js';
 
 const fileFilter = (
   req: Request,
@@ -43,6 +43,5 @@ export const handleUploadError = (
   if (error && error.message === 'Only image files are allowed!') {
     return next(new ApiError('BAD_REQUEST', ERRORS.MULTER.INVALID_FILE_TYPE));
   }
-
   next(error);
 };
