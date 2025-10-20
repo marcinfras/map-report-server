@@ -2,12 +2,12 @@ import type { Request, Response } from 'express';
 import { withTransactions } from '@helpers/withTransactions.js';
 import { ApiError } from '@helpers/ApiError.js';
 import { ERRORS } from '@/types/errors.js';
-import { Pin, PinType } from '@models/Pins.js';
+import { Pin, PinType, type IPin } from '@models/Pins.js';
 import { User } from '@models/Users.js';
 import { v4 as uuidv4 } from 'uuid';
 import { deleteFromS3, getFromS3, uploadToS3 } from '@helpers/aws.js';
 import { SUCCESS } from '@/types/success.js';
-import type { SortOrder } from 'mongoose';
+import type { PipelineStage, SortOrder } from 'mongoose';
 
 export const createPin = async (req: Request, res: Response) => {
   let s3key: string | null = null;
@@ -109,7 +109,11 @@ export const getPinById = async (req: Request, res: Response) => {
 };
 
 export const getMyPins = async (req: Request, res: Response) => {
-  const { type, status, sort } = req.query;
+  const { type, status, sort, page: reqPage, limit: reqLimit } = req.query;
+
+  const page = parseInt(reqPage as string) || 1;
+  const limit = parseInt(reqLimit as string) || 10;
+  const skip = (page - 1) * limit;
 
   const query = {
     author: req.session.user!.profile._id,
@@ -120,7 +124,12 @@ export const getMyPins = async (req: Request, res: Response) => {
   const sortOption: Record<string, SortOrder> =
     sort === 'asc' ? { createdAt: 'asc' } : { createdAt: 'desc' };
 
-  const pins = await Pin.find(query).sort(sortOption);
+  const [pins, total] = await Promise.all([
+    await Pin.find(query).sort(sortOption).skip(skip).limit(limit),
+    await Pin.countDocuments(query),
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
 
   const pinsWithImages = await Promise.all(
     pins.map(async pin => {
@@ -138,7 +147,114 @@ export const getMyPins = async (req: Request, res: Response) => {
     })
   );
 
-  res.json(pinsWithImages);
+  res.json({
+    pins: pinsWithImages,
+    pagination: {
+      total,
+      totalPages,
+    },
+  });
+};
+
+export const getAdminPins = async (req: Request, res: Response) => {
+  const {
+    type,
+    status,
+    sort,
+    search,
+    field,
+    operator,
+    page: reqPage,
+    limit: reqLimit,
+  } = req.query;
+
+  const page = parseInt(reqPage as string) || 1;
+  const limit = parseInt(reqLimit as string) || 10;
+  const skip = (page - 1) * limit;
+
+  const match = {
+    ...(type ? { type } : {}),
+    ...(status ? { status } : {}),
+  };
+
+  const sortOption: Record<string, 1 | -1> = {
+    createdAt: sort === 'asc' ? 1 : -1,
+  };
+
+  const pipeline: PipelineStage[] = [
+    {
+      $lookup: {
+        from: 'profiles',
+        let: { authorId: '$author' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$_id', '$$authorId'] } } },
+          { $project: { _id: 0, fullName: 1 } },
+        ],
+        as: 'author',
+      },
+    },
+    { $unwind: '$author' },
+    { $match: match },
+  ];
+
+  if (search && field && operator) {
+    let regex: RegExp;
+    switch (operator) {
+      case 'equals':
+        regex = new RegExp(`^${search}$`, 'i');
+        break;
+      case 'startsWith':
+        regex = new RegExp(`^${search}`, 'i');
+        break;
+      default:
+        regex = new RegExp(`${search}`, 'i');
+    }
+
+    if (field === 'author') {
+      pipeline.push({ $match: { 'author.fullName': { $regex: regex } } });
+    } else {
+      pipeline.push({ $match: { [field as string]: { $regex: regex } } });
+    }
+  }
+
+  pipeline.push({ $sort: sortOption });
+
+  pipeline.push({
+    $facet: {
+      data: [{ $skip: skip }, { $limit: limit }],
+      totalCount: [{ $count: 'count' }],
+    },
+  });
+
+  const [result] = await Pin.aggregate(pipeline);
+
+  const total = result.totalCount[0] ? result.totalCount[0].count : 0;
+  const totalPages = Math.ceil(total / limit);
+  const pins: IPin[] = result?.data || [];
+
+  const pinsWithImages = await Promise.all(
+    pins.map(async pin => {
+      let imageBase64: string | null = null;
+      if (pin.image) {
+        const s3Object = await getFromS3(pin.image);
+        const chunks: Buffer[] = [];
+        for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
+          chunks.push(chunk);
+        }
+        const buffer = Buffer.concat(chunks);
+        imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+      }
+      return { ...pin, image: imageBase64 };
+    })
+  );
+
+  res.json({
+    pins: pinsWithImages,
+    pagination: {
+      total,
+      totalPages,
+    },
+  });
 };
 
 export const getPinCounts = async (req: Request, res: Response) => {
@@ -180,7 +296,10 @@ export const updatePin = async (req: Request, res: Response) => {
 
     const authorProfileId = req.session.user!.profile._id;
 
-    if (authorProfileId.toString() !== pin.author.toString()) {
+    if (
+      authorProfileId.toString() !== pin.author.toString() &&
+      req.session.user?.profile.role !== 'admin'
+    ) {
       throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
     }
 
@@ -225,7 +344,10 @@ export const deletePin = async (req: Request, res: Response) => {
 
     const authorProfileId = req.session.user!.profile._id;
 
-    if (authorProfileId.toString() !== pin.author.toString()) {
+    if (
+      authorProfileId.toString() !== pin.author.toString() &&
+      req.session.user?.profile.role !== 'admin'
+    ) {
       throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
     }
 

@@ -11,7 +11,7 @@ export enum PinStatus {
   Resolved = 'resolved',
 }
 
-interface IPin {
+export interface IPin {
   _id: Types.ObjectId;
   title: string;
   description: string;
