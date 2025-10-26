@@ -1,0 +1,47 @@
+name: Push to main
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  // todo: add linting and checking the format beforehands
+  build-image:
+    name: Build Docker Image
+    runs-on: general
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build container image
+        uses: docker/build-push-action@v6
+
+  publish-release:
+    name: Publish Release Package
+    needs:
+      - build-image
+    runs-on: general
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'yarn'
+          registry-url: 'https://npm.pkg.github.com/'
+
+      - name: Init env
+        run: yarn install
+
+      - name: Build API
+        run: yarn build
+
+      - name: Publish release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          yarn release --ci
