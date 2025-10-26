@@ -19,14 +19,19 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Install dependencies
-        run: yarn install
+      - name: Install dependencies with Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.2 --activate
+          yarn --version
+          yarn install --immutable
 
       - name: Run ESLint
         run: yarn lint
 
       - name: Run Prettier check
         run: yarn pretty:fix --check
+
   build-image:
     name: Build Docker Image
     needs:
@@ -54,8 +59,12 @@ jobs:
           node-version: '24'
           registry-url: 'https://npm.pkg.github.com/'
 
-      - name: Init env
-        run: yarn install
+      - name: Install dependencies with Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.2 --activate
+          yarn --version
+          yarn install --immutable
 
       - name: Build API
         run: yarn build
