@@ -20,13 +20,12 @@ jobs:
           node-version: '24'
           cache: 'yarn'
 
-      - name: Enable Corepack and Yarn 4
+      - name: Install dependencies with Yarn 4
         run: |
           corepack enable
           corepack prepare yarn@4.9.2 --activate
-
-      - name: Install dependencies
-        run: yarn install
+          yarn --version
+          yarn install --immutable
 
       - name: Run ESLint
         run: yarn lint
@@ -62,13 +61,12 @@ jobs:
           cache: 'yarn'
           registry-url: 'https://npm.pkg.github.com/'
 
-      - name: Enable Corepack and Yarn 4
+      - name: Install dependencies with Yarn 4
         run: |
           corepack enable
           corepack prepare yarn@4.9.2 --activate
-
-      - name: Init env
-        run: yarn install
+          yarn --version
+          yarn install --immutable
 
       - name: Build API
         run: yarn build
