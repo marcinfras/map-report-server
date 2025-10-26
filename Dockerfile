@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN corepack enable && corepack install
-RUN yarn build:server
+RUN yarn build
 
 
 FROM node:$NODE_VERSION AS deploy
