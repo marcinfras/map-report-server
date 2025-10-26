@@ -20,13 +20,12 @@ RUN yarn build:server
 FROM node:$NODE_VERSION AS deploy
 WORKDIR /app
 
-COPY package.json yarn.lock .yarnrc.yml migrate-mongo-config.ts ./
+COPY package.json yarn.lock .yarnrc.yml ./
 RUN corepack enable && corepack install
 
 RUN yarn workspaces focus --production \
     && rm -Rf /root/.yarn /tmp/node-compile-cache
 COPY --from=builder /app/dist/ dist/
-COPY migrations/ migrations/
 
 EXPOSE 3000
 ENV NODE_ENV=production
