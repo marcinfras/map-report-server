@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - support/implement-packaging
 
   workflow_dispatch:
 
