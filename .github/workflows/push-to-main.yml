@@ -20,6 +20,11 @@ jobs:
           node-version: '24'
           cache: 'yarn'
 
+      - name: Enable Corepack and Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.2 --activate
+
       - name: Install dependencies
         run: yarn install
 
@@ -28,6 +33,7 @@ jobs:
 
       - name: Run Prettier check
         run: yarn pretty --check
+
   build-image:
     name: Build Docker Image
     needs:
@@ -55,6 +61,11 @@ jobs:
           node-version: '24'
           cache: 'yarn'
           registry-url: 'https://npm.pkg.github.com/'
+
+      - name: Enable Corepack and Yarn 4
+        run: |
+          corepack enable
+          corepack prepare yarn@4.9.2 --activate
 
       - name: Init env
         run: yarn install
