@@ -2,8 +2,8 @@ import express from 'express';
 import {
   createPin,
   deletePin,
-  getAdminPins,
-  getMyPins,
+  listAdminPins,
+  listMyPins,
   getPinById,
   getPinCounts,
   getPins,
@@ -38,7 +38,7 @@ router.get(
   requireAuth,
   validate(pinFiltersSchema),
   convertIdMiddleware(),
-  asyncHandler(getMyPins)
+  asyncHandler(listMyPins)
 );
 router.get(
   '/admin',
@@ -46,7 +46,7 @@ router.get(
   requireAdmin,
   validate(pinFiltersSchema),
   convertIdMiddleware(),
-  asyncHandler(getAdminPins)
+  asyncHandler(listAdminPins)
 );
 router.get('/:id', convertIdMiddleware(), asyncHandler(getPinById));
 router.put(

@@ -10,6 +10,7 @@ export default defineConfig([
     extends: ['js/recommended'],
     languageOptions: { globals: globals.browser },
   },
+  // @ts-expect-error bug in types
   tseslint.configs.recommended,
   {
     rules: {

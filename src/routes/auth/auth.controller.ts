@@ -9,7 +9,7 @@ import Config from '@/config.js';
 import { OAuthError } from '@/types/oauth.js';
 import { ERRORS } from '@/types/errors.js';
 import { SUCCESS } from '@/types/success.js';
-import { getFromS3 } from '@helpers/aws.js';
+import { getBase64ImageFromS3 } from '@helpers/aws.js';
 
 export const register = async (req: Request, res: Response) => {
   const result = await withTransactions(async session => {
@@ -231,18 +231,11 @@ export const me = async (req: Request, res: Response) => {
     throw new ApiError('NOT_FOUND', ERRORS.AUTH.NOT_FOUND);
   }
 
-  let imageBase64: string | null = null;
   const profile = user.profile as IProfile;
-  if (profile.avatar && !profile.avatar.startsWith('http')) {
-    const s3Key = profile.avatar;
-    const s3Object = await getFromS3(s3Key);
+  let imageBase64: string | null = null;
 
-    const chunks: Buffer[] = [];
-    for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
-      chunks.push(chunk);
-    }
-    const buffer = Buffer.concat(chunks);
-    imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+  if (profile.avatar && !profile.avatar.startsWith('http')) {
+    imageBase64 = await getBase64ImageFromS3(profile.avatar);
   }
 
   res.status(200).json({

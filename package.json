@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --legacy-watch --watch src --exec tsx src/server.ts",
+    "build": "rm -rf dist && tsc",
     "prepare": "husky",
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",
     "lint:commits": "commitlint --last --verbose",

@@ -5,9 +5,14 @@ import { ERRORS } from '@/types/errors.js';
 import { Pin, PinType, type IPin } from '@models/Pins.js';
 import { User } from '@models/Users.js';
 import { v4 as uuidv4 } from 'uuid';
-import { deleteFromS3, getFromS3, uploadToS3 } from '@helpers/aws.js';
+import {
+  deleteFromS3,
+  getBase64ImageFromS3,
+  uploadToS3,
+} from '@helpers/aws.js';
 import { SUCCESS } from '@/types/success.js';
 import type { PipelineStage, SortOrder } from 'mongoose';
+import { attachPinImages, buildSearchStage, isOwnerOfPin } from './helpers.js';
 
 export const createPin = async (req: Request, res: Response) => {
   let s3key: string | null = null;
@@ -29,7 +34,7 @@ export const createPin = async (req: Request, res: Response) => {
       s3key = `pins/${uuidv4()}`;
       try {
         await uploadToS3(req.file.buffer, s3key, req.file.mimetype);
-      } catch (error) {
+      } catch {
         throw new ApiError(
           'INTERNAL_SERVER_ERROR',
           ERRORS.PINS.FAILED_IMAGE_UPLOAD
@@ -94,21 +99,13 @@ export const getPinById = async (req: Request, res: Response) => {
   }
   let imageBase64: string | null = null;
   if (pin.image) {
-    const s3Key = pin.image;
-    const s3Object = await getFromS3(s3Key);
-
-    const chunks: Buffer[] = [];
-    for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
-      chunks.push(chunk);
-    }
-    const buffer = Buffer.concat(chunks);
-    imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+    imageBase64 = await getBase64ImageFromS3(pin.image);
   }
 
   res.json({ ...pin.toObject(), image: imageBase64 });
 };
 
-export const getMyPins = async (req: Request, res: Response) => {
+export const listMyPins = async (req: Request, res: Response) => {
   const { type, status, sort, page: reqPage, limit: reqLimit } = req.query;
 
   const page = parseInt(reqPage as string) || 1;
@@ -131,21 +128,7 @@ export const getMyPins = async (req: Request, res: Response) => {
 
   const totalPages = Math.ceil(total / limit);
 
-  const pinsWithImages = await Promise.all(
-    pins.map(async pin => {
-      let imageBase64: string | null = null;
-      if (pin.image) {
-        const s3Object = await getFromS3(pin.image);
-        const chunks: Buffer[] = [];
-        for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
-          chunks.push(chunk);
-        }
-        const buffer = Buffer.concat(chunks);
-        imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
-      }
-      return { ...pin.toObject(), image: imageBase64 };
-    })
-  );
+  const pinsWithImages = await attachPinImages(pins);
 
   res.json({
     pins: pinsWithImages,
@@ -156,7 +139,7 @@ export const getMyPins = async (req: Request, res: Response) => {
   });
 };
 
-export const getAdminPins = async (req: Request, res: Response) => {
+export const listAdminPins = async (req: Request, res: Response) => {
   const {
     type,
     status,
@@ -197,24 +180,14 @@ export const getAdminPins = async (req: Request, res: Response) => {
     { $match: match },
   ];
 
-  if (search && field && operator) {
-    let regex: RegExp;
-    switch (operator) {
-      case 'equals':
-        regex = new RegExp(`^${search}$`, 'i');
-        break;
-      case 'startsWith':
-        regex = new RegExp(`^${search}`, 'i');
-        break;
-      default:
-        regex = new RegExp(`${search}`, 'i');
-    }
+  const searchStage = buildSearchStage(
+    search as string,
+    field as string,
+    operator as string
+  );
 
-    if (field === 'author') {
-      pipeline.push({ $match: { 'author.fullName': { $regex: regex } } });
-    } else {
-      pipeline.push({ $match: { [field as string]: { $regex: regex } } });
-    }
+  if (searchStage) {
+    pipeline.push(searchStage);
   }
 
   pipeline.push({ $sort: sortOption });
@@ -232,21 +205,7 @@ export const getAdminPins = async (req: Request, res: Response) => {
   const totalPages = Math.ceil(total / limit);
   const pins: IPin[] = result?.data || [];
 
-  const pinsWithImages = await Promise.all(
-    pins.map(async pin => {
-      let imageBase64: string | null = null;
-      if (pin.image) {
-        const s3Object = await getFromS3(pin.image);
-        const chunks: Buffer[] = [];
-        for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
-          chunks.push(chunk);
-        }
-        const buffer = Buffer.concat(chunks);
-        imageBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
-      }
-      return { ...pin, image: imageBase64 };
-    })
-  );
+  const pinsWithImages = await attachPinImages(pins);
 
   res.json({
     pins: pinsWithImages,
@@ -290,47 +249,48 @@ export const updatePin = async (req: Request, res: Response) => {
 
   if (!id) throw new ApiError('BAD_REQUEST', ERRORS.PINS.NOT_FOUND);
 
-  const result = await withTransactions(async session => {
-    const pin = await Pin.findById(id).session(session);
-    if (!pin) throw new ApiError('NOT_FOUND', ERRORS.PINS.NOT_FOUND);
+  const pin = await Pin.findById(id);
+  if (!pin) throw new ApiError('NOT_FOUND', ERRORS.PINS.NOT_FOUND);
 
-    const authorProfileId = req.session.user!.profile._id;
+  const authorProfileId = req.session.user!.profile._id;
 
-    if (
-      authorProfileId.toString() !== pin.author.toString() &&
-      req.session.user?.profile.role !== 'admin'
-    ) {
-      throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
-    }
+  if (
+    !isOwnerOfPin(
+      authorProfileId.toString(),
+      pin.author.toString(),
+      req.session.user!.profile.role
+    )
+  ) {
+    throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
+  }
 
-    if (title) pin.title = title;
-    if (description) pin.description = description;
-    if (type) pin.type = type;
-    if (status) pin.status = status;
+  if (title) pin.title = title;
+  if (description) pin.description = description;
+  if (type) pin.type = type;
+  if (status) pin.status = status;
 
-    if (req.file) {
-      const oldS3Key = pin.image;
-      const newS3Key = `pins/${uuidv4()}`;
-      try {
-        await uploadToS3(req.file.buffer, newS3Key, req.file.mimetype);
-        pin.image = newS3Key;
-        if (oldS3Key) {
-          await deleteFromS3(oldS3Key);
-        }
-      } catch (error) {
-        throw new ApiError(
-          'INTERNAL_SERVER_ERROR',
-          ERRORS.PINS.FAILED_IMAGE_UPLOAD
-        );
+  if (req.file) {
+    const oldS3Key = pin.image;
+    const newS3Key = `pins/${uuidv4()}`;
+    try {
+      await uploadToS3(req.file.buffer, newS3Key, req.file.mimetype);
+      pin.image = newS3Key;
+      if (oldS3Key) {
+        await deleteFromS3(oldS3Key);
       }
+    } catch {
+      await deleteFromS3(newS3Key);
+      throw new ApiError(
+        'INTERNAL_SERVER_ERROR',
+        ERRORS.PINS.FAILED_IMAGE_UPLOAD
+      );
     }
+  }
 
-    await pin.save({ session });
-    await pin.populate('author', 'fullName');
-    return pin;
-  });
+  await pin.save();
+  await pin.populate('author', 'fullName');
 
-  res.json({ message: SUCCESS.PINS.PIN_UPDATED, pin: result });
+  res.json({ message: SUCCESS.PINS.PIN_UPDATED, pin });
 };
 
 export const deletePin = async (req: Request, res: Response) => {
@@ -345,8 +305,11 @@ export const deletePin = async (req: Request, res: Response) => {
     const authorProfileId = req.session.user!.profile._id;
 
     if (
-      authorProfileId.toString() !== pin.author.toString() &&
-      req.session.user?.profile.role !== 'admin'
+      !isOwnerOfPin(
+        authorProfileId.toString(),
+        pin.author.toString(),
+        req.session.user!.profile.role
+      )
     ) {
       throw new ApiError('FORBIDDEN', ERRORS.AUTH.FORBIDDEN);
     }
@@ -356,7 +319,7 @@ export const deletePin = async (req: Request, res: Response) => {
     if (pin.image) {
       try {
         await deleteFromS3(pin.image);
-      } catch (error) {
+      } catch {
         throw new ApiError(
           'INTERNAL_SERVER_ERROR',
           ERRORS.PINS.FAILED_PIN_DELETE
