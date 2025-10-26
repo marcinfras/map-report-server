@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-   lint-and-check:
+  lint-and-check:
     name: Lint and Format Check
     runs-on: general
     steps:
