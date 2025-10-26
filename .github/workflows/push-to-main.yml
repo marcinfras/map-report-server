@@ -7,7 +7,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  // todo: add linting and checking the format beforehands
+   lint-and-check:
+    name: Lint and Format Check
+    runs-on: general
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run ESLint
+        run: yarn lint
+
+      - name: Run Prettier check
+        run: yarn pretty --check
   build-image:
     name: Build Docker Image
     runs-on: general

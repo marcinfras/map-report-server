@@ -9,6 +9,7 @@
     "dev": "nodemon --legacy-watch --watch src --exec tsx src/server.ts",
     "build": "rm -rf dist && tsc",
     "prepare": "husky",
+    "lint": "eslint './**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",
     "lint:commits": "commitlint --last --verbose",
     "pretty": "prettier './**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'",
