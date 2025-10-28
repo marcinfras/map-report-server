@@ -1,6 +1,6 @@
 {
   "name": "@marcinfras/map-report-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "src/server.ts",
   "author": "marcinfras",
   "license": "MIT",
