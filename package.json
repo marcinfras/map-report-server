@@ -14,7 +14,7 @@
     "lint:commits": "commitlint --last --verbose",
     "pretty": "prettier './**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'",
     "pretty:fix": "yarn pretty --write",
-    "release": "semantic-release"
+    "release": "npm publish"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
