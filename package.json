@@ -1,8 +1,11 @@
 {
   "name": "@marcinfras/map-report-server",
-  "version": "1.0.2",
-  "main": "dist/index.js",
+  "version": "1.0.3",
+  "main": "dist/server.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "author": "marcinfras",
   "license": "MIT",
   "type": "module",
