@@ -1,6 +1,6 @@
 {
   "name": "@marcinfras/map-report-server",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/server.js",
   "types": "dist/types/public-api.d.ts",
   "files": [
@@ -18,7 +18,7 @@
     "lint:commits": "commitlint --last --verbose",
     "pretty": "prettier './**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'",
     "pretty:fix": "yarn pretty --write",
-    "release": "npm publish"
+    "release": "semantic-release"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

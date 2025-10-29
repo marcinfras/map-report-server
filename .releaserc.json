@@ -1,20 +1,24 @@
-[
-  "@semantic-release/commit-analyzer",
-  "@semantic-release/release-notes-generator",
-  [
-    "@semantic-release/npm",
-    {
-      "npmPublish": true,
-      "pkgRoot": ".",
-      "npmRegistry": "https://npm.pkg.github.com/"
-    }
-  ],
-  "@semantic-release/github",
-  [
-    "@semantic-release/git",
-    {
-      "assets": ["package.json", "yarn.lock"],
-      "message": "chore(release): ${nextRelease.version} [skip ci]"
-    }
+{
+  "branches": ["main", "support/implement-packaging"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": true,
+        "pkgRoot": "dist",
+        "tarballDir": "dist",
+        "npmRegistry": "https://npm.pkg.github.com/"
+      }
+    ],
+    "@semantic-release/github",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "yarn.lock"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]"
+      }
+    ]
   ]
-]
+}
