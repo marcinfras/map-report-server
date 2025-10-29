@@ -38,3 +38,14 @@ export const getFromS3 = async (key: string) => {
     })
   );
 };
+
+export const getBase64ImageFromS3 = async (key: string) => {
+  const s3Object = await getFromS3(key);
+
+  const chunks: Buffer[] = [];
+  for await (const chunk of s3Object.Body as AsyncIterable<Buffer>) {
+    chunks.push(chunk);
+  }
+  const buffer = Buffer.concat(chunks);
+  return `data:image/jpeg;base64,${buffer.toString('base64')}`;
+};

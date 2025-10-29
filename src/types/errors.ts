@@ -10,6 +10,7 @@ export interface ErrorMessages {
     FORBIDDEN: string;
     INVALID_USER_TYPE: string;
     CHANGE_PASSWORD_INVALID_OLD_PASSWORD: string;
+    ADMIN_ONLY: string;
   };
   PINS: {
     FAILED_PIN_CREATION: string;
@@ -47,6 +48,7 @@ export const ERRORS: ErrorMessages = {
     FORBIDDEN: 'You do not have permission to perform this action',
     INVALID_USER_TYPE: 'Invalid user type',
     CHANGE_PASSWORD_INVALID_OLD_PASSWORD: 'Old password is incorrect',
+    ADMIN_ONLY: 'Admin access required',
   },
   PINS: {
     FAILED_PIN_CREATION: 'Failed to create pin',

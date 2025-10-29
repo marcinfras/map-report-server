@@ -2,7 +2,8 @@ import express from 'express';
 import {
   createPin,
   deletePin,
-  getMyPins,
+  listAdminPins,
+  listMyPins,
   getPinById,
   getPinCounts,
   getPins,
@@ -18,6 +19,7 @@ import {
 } from '@schemas/pinSchemas.js';
 import { asyncHandler } from '@helpers/asyncHandler.js';
 import { convertIdMiddleware } from '@middleware/convertId.js';
+import { requireAdmin } from '@middleware/requireAdmin.js';
 
 const router = express.Router();
 
@@ -36,7 +38,15 @@ router.get(
   requireAuth,
   validate(pinFiltersSchema),
   convertIdMiddleware(),
-  asyncHandler(getMyPins)
+  asyncHandler(listMyPins)
+);
+router.get(
+  '/admin',
+  requireAuth,
+  requireAdmin,
+  validate(pinFiltersSchema),
+  convertIdMiddleware(),
+  asyncHandler(listAdminPins)
 );
 router.get('/:id', convertIdMiddleware(), asyncHandler(getPinById));
 router.put(
