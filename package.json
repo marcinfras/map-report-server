@@ -1,19 +1,19 @@
 {
   "name": "@marcinfras/map-report-server",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/server.js",
   "types": "dist/types/public-api.d.ts",
   "exports": {
-  ".": {
-    "import": "./dist/server.js",
-    "require": "./dist/server.js",
-    "types": "./dist/types/public-api.d.ts"
+    ".": {
+      "import": "./dist/server.js",
+      "require": "./dist/server.js",
+      "types": "./dist/types/public-api.d.ts"
+    },
+    "./types": {
+      "types": "./dist/types/public-api.d.ts",
+      "default": "./dist/types/public-api.d.ts"
+    }
   },
-  "./types": {
-    "types": "./dist/types/public-api.d.ts",
-    "default": "./dist/types/public-api.d.ts"
-  }
-},
   "files": [
     "dist"
   ],
