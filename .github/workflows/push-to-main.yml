@@ -67,7 +67,7 @@ jobs:
           yarn install --immutable
 
       - name: Build API
-        run: yarn build
+        run: yarn build:types
 
       - name: Publish release
         env:

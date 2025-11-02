@@ -2,20 +2,20 @@
   "name": "@marcinfras/map-report-server",
   "version": "1.0.3",
   "main": "dist/server.js",
-  "types": "dist/types/public-api.d.ts",
+  "types": "dist/public-api.d.ts",
   "exports": {
-  ".": {
-    "import": "./dist/server.js",
-    "require": "./dist/server.js",
-    "types": "./dist/types/public-api.d.ts"
+    ".": {
+      "import": "./dist/server.js",
+      "require": "./dist/server.js"
+    },
+    "./types": {
+      "types": "./dist/public-api.d.ts",
+      "default": "./dist/public-api.d.ts"
+    }
   },
-  "./types": {
-    "types": "./dist/types/public-api.d.ts",
-    "default": "./dist/types/public-api.d.ts"
-  }
-},
   "files": [
-    "dist"
+    "dist/public-api.d.ts",
+    "dist/server.js"
   ],
   "author": "marcinfras",
   "license": "MIT",
@@ -23,6 +23,7 @@
   "scripts": {
     "dev": "nodemon --legacy-watch --watch src --exec tsx src/server.ts",
     "build": "rm -rf dist && tsc && tsc-alias",
+    "build:types": "rm -rf dist && tsc -p tsconfig.types.json",
     "prepare": "husky",
     "lint": "eslint './**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",
