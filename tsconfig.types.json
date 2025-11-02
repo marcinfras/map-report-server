@@ -1,13 +1,17 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
     "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationMap": false,
-    "outDir": "dist",
-    "rootDir": "src",
-    "noEmit": false,
-    "removeComments": false
+    "declarationMap": true,
+    "isolatedModules": false,
+    "noEmitOnError": false
   },
-  "include": ["src/types/public-api.ts"]
+  "include": [
+    "src/types/public-api.ts",
+    "src/models/**/*.ts",
+    "src/routes/**/*.ts"
+  ]
 }
