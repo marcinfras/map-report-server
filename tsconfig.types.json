@@ -12,6 +12,6 @@
   "include": [
     "src/types/public-api.ts",
     "src/models/**/*.ts",
-    "src/routes/**/*.ts"
+    "src/routes/**/types.ts"
   ]
 }
