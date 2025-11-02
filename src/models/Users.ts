@@ -7,7 +7,7 @@ export enum UserType {
   THIRD_PARTY = 'thirdParty',
 }
 
-interface IBaseUser {
+export interface IBaseUser {
   _id: Types.ObjectId;
   email: string;
   profile: Types.ObjectId | IProfile;

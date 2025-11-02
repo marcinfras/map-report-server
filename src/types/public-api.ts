@@ -1,4 +1,14 @@
-export * from '../models/Users.js';
-export * from '../models/Profiles.js';
-export * from '../models/Pins.js';
-export * from './oauth.js';
+export { UserType } from '../models/Users.js';
+export { PinStatus, PinType } from '../models/Pins.js';
+export { OAuthError } from './oauth.js';
+
+export type {
+  MyPin,
+  PinDetails,
+  AdminPin,
+  MapPin,
+  Pagination,
+  listMyPins,
+  listAdminPins,
+} from '../routes/pins/types.js';
+export type { ApiUser, ApiProfile } from '../routes/auth/types.js';
