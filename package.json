@@ -3,6 +3,16 @@
   "version": "1.0.1",
   "main": "dist/server.js",
   "types": "dist/types/public-api.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/server.js",
+      "require": "./dist/server.js"
+    },
+    "./types": {
+      "import": "./dist/types/public-api.js",
+      "types": "./dist/types/public-api.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],
