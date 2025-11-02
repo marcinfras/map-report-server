@@ -1,6 +1,6 @@
 {
   "name": "@marcinfras/map-report-server",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/server.js",
   "types": "dist/public-api.d.ts",
   "exports": {
