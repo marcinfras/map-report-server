@@ -10,4 +10,5 @@ export type {
   listMyPins,
   listAdminPins,
 } from '../routes/pins/types.js';
+
 export type { ApiUser, ApiProfile } from '../routes/auth/types.js';
