@@ -14,8 +14,7 @@
     }
   },
   "files": [
-    "dist/public-api.d.ts",
-    "dist/server.js"
+    "dist"
   ],
   "author": "marcinfras",
   "license": "MIT",
