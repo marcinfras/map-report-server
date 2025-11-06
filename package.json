@@ -9,9 +9,9 @@
       "require": "./dist/server.js"
     },
     "./types": {
-      "import": "./dist/types/types/public-api.js",
-      "require": "./dist/types/types/public-api.js",
-      "types": "./dist/types/types/public-api.d.ts"
+      "import": "./dist/types/public-api.js",
+      "require": "./dist/types/public-api.js",
+      "types": "./dist/types/public-api.d.ts"
     }
   },
   "files": [
