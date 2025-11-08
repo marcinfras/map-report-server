@@ -1,30 +1,11 @@
 import { Schema, Types, model } from 'mongoose';
 import bcrypt from 'bcrypt';
-import type { IProfile } from './Profiles.js';
-
-export enum UserType {
-  STANDARD = 'standard',
-  THIRD_PARTY = 'thirdParty',
-}
-
-export interface IBaseUser {
-  _id: Types.ObjectId;
-  email: string;
-  profile: Types.ObjectId | IProfile;
-  createdAt: Date;
-  updatedAt: Date;
-  userType: UserType;
-}
-
-interface IStandardUser extends IBaseUser {
-  password: string;
-  userType: UserType.STANDARD;
-}
-
-interface IThirdPartyUser extends IBaseUser {
-  provider: string;
-  userType: UserType.THIRD_PARTY;
-}
+import {
+  UserType,
+  type IBaseUser,
+  type IStandardUser,
+  type IThirdPartyUser,
+} from './users.enums.js';
 
 const baseUserSchema = new Schema<IBaseUser>(
   {

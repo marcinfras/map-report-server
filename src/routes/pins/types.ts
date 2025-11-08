@@ -1,4 +1,4 @@
-import type { IPin } from '@models/Pins.js';
+import type { IPin } from '@models/pins.enums.js';
 import type { ApiProfile } from '../auth/types.js';
 
 export type MyPin = Omit<IPin, '_id' | 'author' | 'createdAt'> & {

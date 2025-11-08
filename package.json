@@ -10,8 +10,8 @@
     },
     "./types": {
       "import": "./dist/types/public-api.js",
-      "require": "./dist/types/public-api.js",
-      "types": "./dist/types/public-api.d.ts"
+      "types": "./dist/types/public-api.d.ts",
+      "default": "./dist/types/public-api.js"
     }
   },
   "files": [
@@ -23,7 +23,7 @@
   "scripts": {
     "dev": "nodemon --legacy-watch --watch src --exec tsx src/server.ts",
     "build": "rm -rf dist && tsc && tsc-alias",
-    "build:types": "rm -rf dist && tsc -p tsconfig.types.json",
+    "build:types": "rm -rf dist && tsc -p tsconfig.types.json && tsc-alias -p tsconfig.types.json",
     "prepare": "husky",
     "lint": "eslint './**/*.{js,jsx,ts,tsx}'",
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx}'",

@@ -2,7 +2,9 @@ import type { Request, Response } from 'express';
 import { withTransactions } from '@helpers/withTransactions.js';
 import { ApiError } from '@helpers/ApiError.js';
 import { ERRORS } from '@/types/errors.js';
-import { Pin, PinType, type IPin } from '@models/Pins.js';
+import { Pin } from '@models/Pins.js';
+import type { IPin } from '@models/pins.enums.js';
+import { PinType } from '@models/pins.enums.js';
 import { User } from '@models/Users.js';
 import { v4 as uuidv4 } from 'uuid';
 import {
