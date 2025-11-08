@@ -1,5 +1,5 @@
 import { getBase64ImageFromS3 } from '@helpers/aws.js';
-import type { IPin } from '@models/pins.enums.js';
+import type { IPin } from '@models/Pins/types.js';
 import type { Document } from 'mongoose';
 
 export const isOwnerOfPin = (

@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { ERRORS } from '@/types/errors.js';
-import { PinStatus, PinType } from '@models/pins.enums.js';
+import { PinStatus, PinType } from '@models/Pins/types.js';
 
 export const createPinSchema = yup.object({
   title: yup

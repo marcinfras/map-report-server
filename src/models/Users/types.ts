@@ -1,5 +1,5 @@
 import type { Types } from 'mongoose';
-import type { IProfile } from './profiles.types.js';
+import type { IProfile } from '../Profiles/types.js';
 
 export enum UserType {
   STANDARD = 'standard',

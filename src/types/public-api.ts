@@ -1,5 +1,5 @@
-export { UserType } from '../models/users.enums.js';
-export { PinStatus, PinType } from '../models/pins.enums.js';
+export { UserType } from '../models/Users/types.js';
+export { PinStatus, PinType } from '../models/Pins/types.js';
 export { OAuthError } from './oauth.js';
 export type {
   MyPin,

@@ -1,5 +1,5 @@
-import type { IProfile } from '@models/profiles.types.js';
-import type { IBaseUser } from '@models/users.enums.js';
+import type { IProfile } from '@models/Profiles/types.js';
+import type { IBaseUser } from '@models/Users/types.js';
 
 export type ApiUser = Omit<
   IBaseUser,

@@ -5,7 +5,7 @@ import {
   type IBaseUser,
   type IStandardUser,
   type IThirdPartyUser,
-} from './users.enums.js';
+} from './types.js';
 
 const baseUserSchema = new Schema<IBaseUser>(
   {

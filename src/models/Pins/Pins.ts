@@ -1,10 +1,5 @@
 import { Schema, model, type Types } from 'mongoose';
-import {
-  PinStatus,
-  PinType,
-  type ICoordinates,
-  type IPin,
-} from './pins.enums.js';
+import { PinStatus, PinType, type ICoordinates, type IPin } from './types.js';
 
 const coordinatesSchema = new Schema<ICoordinates>(
   {
