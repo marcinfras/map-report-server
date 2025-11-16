@@ -2,8 +2,10 @@ import type { Request, Response } from 'express';
 import { withTransactions } from '@helpers/withTransactions.js';
 import { ApiError } from '@helpers/ApiError.js';
 import { ERRORS } from '@/types/errors.js';
-import { Pin, PinType, type IPin } from '@models/Pins.js';
-import { User } from '@models/Users.js';
+import { Pin } from '@models/Pins/Pins.js';
+import type { IPin } from '@models/Pins/types.js';
+import { PinType } from '@models/Pins/types.js';
+import { User } from '@models/Users/Users.js';
 import { v4 as uuidv4 } from 'uuid';
 import {
   deleteFromS3,

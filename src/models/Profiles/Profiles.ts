@@ -1,18 +1,5 @@
-import { Schema, Types, model } from 'mongoose';
-
-export enum UserRole {
-  USER = 'user',
-  ADMIN = 'admin',
-}
-
-export interface IProfile {
-  _id: Types.ObjectId;
-  fullName: string;
-  role: UserRole;
-  avatar?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Schema, model } from 'mongoose';
+import { UserRole, type IProfile } from './types.js';
 
 const profileSchema = new Schema<IProfile>(
   {

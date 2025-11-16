@@ -1,7 +1,9 @@
 import { type Request, type Response } from 'express';
 import bcrypt from 'bcrypt';
-import { StandardUser, ThirdPartyUser, User, UserType } from '@models/Users.js';
-import { Profile, type IProfile } from '@models/Profiles.js';
+import { StandardUser, ThirdPartyUser, User } from '@models/Users/Users.js';
+import { UserType } from '@models/Users/types.js';
+import { Profile } from '@models/Profiles/Profiles.js';
+import type { IProfile } from '@models/Profiles/types.js';
 import { ApiError } from '@helpers/ApiError.js';
 import { withTransactions } from '@helpers/withTransactions.js';
 import { googleClient } from '@/index.js';
