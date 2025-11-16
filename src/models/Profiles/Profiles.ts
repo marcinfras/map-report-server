@@ -1,4 +1,4 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { UserRole, type IProfile } from './types.js';
 
 const profileSchema = new Schema<IProfile>(

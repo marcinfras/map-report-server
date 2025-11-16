@@ -1,4 +1,4 @@
-import { Schema, model, type Types } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { PinStatus, PinType, type ICoordinates, type IPin } from './types.js';
 
 const coordinatesSchema = new Schema<ICoordinates>(
