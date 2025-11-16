@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { ERRORS } from '@/types/errors.js';
 import { ApiError } from '@helpers/ApiError.js';
 import { withTransactions } from '@helpers/withTransactions.js';
-import { Profile } from '@models/Profiles.js';
+import { Profile } from '@models/Profiles/Profiles.js';
 import { v4 as uuidv4 } from 'uuid';
 import { deleteFromS3, uploadToS3 } from '@helpers/aws.js';
 import { SUCCESS } from '@/types/success.js';

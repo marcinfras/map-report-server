@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { ApiError } from '@helpers/ApiError.js';
-import { User } from '@models/Users.js';
+import { User } from '@models/Users/Users.js';
 import { ERRORS } from '@/types/errors.js';
 
 export const requireAuth = async (

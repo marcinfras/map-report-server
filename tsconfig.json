@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "./src",
     "baseUrl": "./src",
     "outDir": "./dist",
     "module": "nodenext",
@@ -26,5 +26,7 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "noImplicitAny": true
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.config.ts", "**/*.config.js"]
 }
