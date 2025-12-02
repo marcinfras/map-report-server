@@ -21,18 +21,8 @@ jobs:
       - name: Login to Amazon ECR
         run: aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin ${{secrets.ECR_URI}}
 
-      - name: Build Docker Image
-        steps:
-          - uses: actions/checkout@v4
-          - name: Set up Docker Buildx
-            uses: docker/setup-buildx-action@v3
-          - name: Build container image
-            uses: docker/build-push-action@v6
-            with:
-              tags: map-report-server:latest
-
-      - name: Tag Docker image
-        run: docker tag map-report-server:latest ${{secrets.ECR_URI}}/map-report-server:latest
-
-      - name: Push Docker image to ECR
-        run: docker push ${{secrets.ECR_URI}}/map-report-server:latest
+      - name: Build and push to ECR
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.ECR_URI }}/map-report-server:latest
