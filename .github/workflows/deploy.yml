@@ -22,7 +22,6 @@ jobs:
         run: aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin ${{secrets.ECR_URI}}
 
       - name: Build Docker Image
-        runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@v4
           - name: Set up Docker Buildx
