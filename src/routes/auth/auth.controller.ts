@@ -84,13 +84,6 @@ export const login = async (req: Request, res: Response) => {
     },
   };
 
-  await new Promise<void>((resolve, reject) => {
-    req.session.save(err => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-
   res
     .status(200)
     .json({ message: SUCCESS.AUTH.LOGIN_SUCCESS, user: req.session.user });
