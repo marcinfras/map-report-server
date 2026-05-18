@@ -10,7 +10,12 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 
 const app = express();
+
 const isProduction = Config.NODE_ENV === 'production';
+
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
 
 app.use(express.json());
 connectDB();
@@ -27,6 +32,7 @@ app.use(
     secret: Config.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy: isProduction,
     store: MongoStore.create({
       mongoUrl: Config.MONGODB_URI,
     }),
