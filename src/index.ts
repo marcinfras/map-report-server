@@ -20,6 +20,7 @@ export const googleClient = new OAuth2Client(
 
 export const s3Client = new S3Client({
   region: Config.AWS_REGION,
+  endpoint: Config.AWS_ENDPOINT,
   credentials: {
     accessKeyId: Config.AWS_ACCESS_KEY_ID,
     secretAccessKey: Config.AWS_SECRET_ACCESS_KEY,
