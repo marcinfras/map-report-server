@@ -10,6 +10,7 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 
 const app = express();
+const isProduction = Config.NODE_ENV === 'production';
 
 app.use(express.json());
 connectDB();
@@ -29,7 +30,12 @@ app.use(
     store: MongoStore.create({
       mongoUrl: Config.MONGODB_URI,
     }),
-    cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 },
+    cookie: {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
   })
 );
 

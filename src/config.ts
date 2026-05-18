@@ -15,6 +15,7 @@ export interface AppConfig {
   AWS_REGION: string;
   AWS_ENDPOINT: string;
   AWS_BUCKET_NAME: string;
+  NODE_ENV: string;
 }
 
 const Config: AppConfig = {
@@ -76,6 +77,7 @@ const Config: AppConfig = {
         'AWS_AWS_BUCKET_NAME is not defined in environment variables'
       );
     })(),
+  NODE_ENV: process.env.NODE_ENV || 'test',
 };
 
 export default Config;
