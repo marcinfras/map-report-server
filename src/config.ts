@@ -13,6 +13,7 @@ export interface AppConfig {
   AWS_ACCESS_KEY_ID: string;
   AWS_SECRET_ACCESS_KEY: string;
   AWS_REGION: string;
+  AWS_ENDPOINT: string;
   AWS_BUCKET_NAME: string;
 }
 
@@ -62,6 +63,11 @@ const Config: AppConfig = {
     process.env.AWS_REGION ??
     (() => {
       throw new Error('AWS_REGION is not defined in environment variables');
+    })(),
+  AWS_ENDPOINT:
+    process.env.AWS_ENDPOINT ??
+    (() => {
+      throw new Error('AWS_ENDPOINT is not defined in environment variables');
     })(),
   AWS_BUCKET_NAME:
     process.env.AWS_BUCKET_NAME ??
