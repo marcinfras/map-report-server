@@ -29,4 +29,4 @@ COPY --from=builder /app/dist/ dist/
 
 EXPOSE 3000
 ENV NODE_ENV=production
-CMD ["sh", "-c", "yarn migration:up && /usr/local/bin/node dist/index.js"]
+CMD ["sh", "-c", "node dist/index.js"]
